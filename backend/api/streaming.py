@@ -16,41 +16,73 @@ class AgentEventEmitter:
     A companion `send_events` coroutine drains the queue and writes JSON
     frames to the WebSocket.  Passing ``None`` (the sentinel) terminates
     the send loop.
+
+    Events use flat structure with ``"event"`` as the discriminator key,
+    matching the frontend ``AgentEvent`` TypeScript interface.
     """
 
     def __init__(self) -> None:
         self._queue: asyncio.Queue[dict | None] = asyncio.Queue()
 
-    async def emit_status(self, message: str, *, status: str = "running") -> None:
+    async def emit_status(self, message: str, *, status: str = "executing") -> None:
         """Emit a generic status update."""
-        await self._queue.put({"type": "status", "message": message, "status": status})
+        await self._queue.put({
+            "event": "agent_status",
+            "status": status,
+            "message": message,
+        })
 
     async def emit_evolution_start(self, skill_name: str, trigger_task: str) -> None:
         """Signal that the agent is evolving a new skill."""
         await self._queue.put({
-            "type": "evolution_start",
-            "data": {"skill_name": skill_name, "trigger_task": trigger_task},
+            "event": "evolution_start",
+            "skill_name": skill_name,
+            "message": f"Evolving new skill: {skill_name}",
         })
 
-    async def emit_code_chunk(self, chunk: str) -> None:
+    async def emit_code_chunk(self, chunk: str, skill_name: str = "") -> None:
         """Stream a chunk of generated code."""
-        await self._queue.put({"type": "code_chunk", "data": {"chunk": chunk}})
+        await self._queue.put({
+            "event": "code_stream",
+            "chunk": chunk,
+            "skill_name": skill_name,
+        })
 
-    async def emit_test_result(self, passed: bool, detail: str = "") -> None:
+    async def emit_test_result(
+        self, passed: bool, detail: str = "", skill_name: str = ""
+    ) -> None:
         """Report test execution outcome."""
         await self._queue.put({
-            "type": "test_result",
-            "data": {"passed": passed, "detail": detail},
+            "event": "test_result",
+            "passed": passed,
+            "details": detail,
+            "skill_name": skill_name,
         })
 
-    async def emit_skill_tree_update(self, tree: dict) -> None:
-        """Push the latest skill-tree graph to the frontend."""
-        await self._queue.put({"type": "skill_tree_update", "data": tree})
+    async def emit_skill_tree_update(
+        self, node: dict, edge: dict | None = None
+    ) -> None:
+        """Push a new skill-tree node (and optional edge) to the frontend."""
+        payload: dict = {"event": "skill_tree_update", "node": node}
+        if edge is not None:
+            payload["edge"] = edge
+        await self._queue.put(payload)
 
-    async def emit_complete(self, message: str = "Task complete") -> None:
+    async def emit_complete(self, response: str = "Task complete") -> None:
         """Signal that the agent has finished, then enqueue the sentinel."""
-        await self._queue.put({"type": "complete", "message": message, "status": "complete"})
+        await self._queue.put({
+            "event": "task_complete",
+            "response": response,
+            "status": "idle",
+        })
         await self._queue.put(None)
+
+    async def emit_error(self, message: str) -> None:
+        """Emit an error event."""
+        await self._queue.put({
+            "event": "error",
+            "message": message,
+        })
 
     async def close(self) -> None:
         """Force-close by injecting the sentinel."""

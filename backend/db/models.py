@@ -48,6 +48,11 @@ class SkillTreeNode(BaseModel):
     category: str
     is_core: bool = False
     val: int = Field(default=1, description="Node size for force-graph")
+    color: str = ""
+    status: str = "active"
+    use_count: int = 0
+    created_at: str = ""
+    description: str = ""
 
 
 class SkillTreeLink(BaseModel):

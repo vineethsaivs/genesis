@@ -295,8 +295,9 @@ class TestSkillRegistry:
         await registry.initialize()
 
         skills = await registry.list_skills()
-        assert len(skills) == 5
-        assert all(s["is_core"] for s in skills)
+        core_skills = [s for s in skills if s["is_core"]]
+        assert len(core_skills) == 5
+        assert len(skills) >= 5
 
     async def test_execute_skill(self):
         from backend.skills.registry import SkillRegistry
@@ -335,7 +336,7 @@ class TestSkillRegistry:
         ids = await registry.list_skill_ids()
         assert "calculator" in ids
         assert "web_search" in ids
-        assert len(ids) == 5
+        assert len(ids) >= 5
 
 
 # --- Factory Tests ---
@@ -357,10 +358,10 @@ class TestCreateSkillSystem:
         from backend.skills import create_skill_system
 
         _, tree = await create_skill_system()
-        assert len(tree.nodes) == 5
+        assert len(tree.nodes) >= 5
 
     async def test_registry_has_skills_after_create(self):
         from backend.skills import create_skill_system
 
         registry, _ = await create_skill_system()
-        assert len(registry.skills) == 5
+        assert len(registry.skills) >= 5

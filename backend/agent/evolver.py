@@ -35,7 +35,10 @@ except ImportError:
         "CRITICAL: The import MUST be 'from mcp.server.fastmcp import FastMCP'. "
         "NEVER use 'from fastmcp import register_tool' or 'from fastmcp import FastMCP' — those do NOT work. "
         "Use httpx for HTTP, async functions, type hints, docstrings, "
-        "and include test_ functions. Export SKILL_ID, SKILL_NAME, SKILL_DESCRIPTION, SKILL_CATEGORY."
+        "and include test_ functions. Export SKILL_ID, SKILL_NAME, SKILL_DESCRIPTION, SKILL_CATEGORY. "
+        "CRITICAL TEST RULES: Test functions must take ZERO parameters. No mocker, no fixtures, no arguments. "
+        "NEVER use pytest-mock, unittest.mock, or mocker fixtures. "
+        "Tests run in a bare Python subprocess — only stdlib and httpx are available."
     )
     CATEGORY_IMPORTS = {}
 
@@ -142,7 +145,14 @@ def _build_generation_prompt(evolution_context: dict) -> str:
         f"- The @mcp.tool() function MUST accept **kwargs as its last parameter\n"
         f"  Example: async def {name}(query: str = \"\", **kwargs) -> dict:\n"
         f"- Do NOT put @mcp.tool() on test_ functions\n"
-        f"- Test functions must use mock/hardcoded data (no real network calls)\n"
+        f"- Test functions must use mock/hardcoded data (no real network calls)\n\n"
+        f"CRITICAL TEST RULES:\n"
+        f"- Test functions must take ZERO parameters. No mocker, no fixtures, no arguments.\n"
+        f"- NEVER use pytest-mock, unittest.mock, or mocker fixtures.\n"
+        f"- Use simple hardcoded assertions or inline mock data instead.\n"
+        f"- Tests run in a bare Python subprocess — only stdlib and httpx are available.\n"
+        f"- Good: async def test_my_tool():\n"
+        f"- BAD:  async def test_my_tool(mocker):  # WRONG\n"
     )
 
     if last_error:

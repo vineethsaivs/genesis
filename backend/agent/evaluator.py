@@ -265,7 +265,7 @@ async def evaluator_node(state: dict) -> dict:
 
         agent_events.append({
             "event": "evolution_start",
-            "tool_name": evolution_context.get("suggested_name", "unknown"),
+            "skill_name": evolution_context.get("suggested_name", "unknown"),
             "category": evolution_context.get("suggested_category", "general"),
             "error": evolution_context.get("error", ""),
             "timestamp": datetime.now(timezone.utc).isoformat(),

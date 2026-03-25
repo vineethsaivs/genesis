@@ -30,7 +30,7 @@ export default function App() {
 
   const { sendMessage, events, isConnected } = useWebSocket(!demoMode);
   const { graphData, setGraphData, selectedNode, setSelectedNode, addNode } = useSkillTree();
-  const { demoEvents } = useDemoMode(demoMode, addNode, setGraphData);
+  const { demoEvents } = useDemoMode(demoMode, setGraphData);
 
   // Skill tree sizing
   const skillTreeRef = useRef<HTMLDivElement>(null);

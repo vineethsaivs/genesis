@@ -44,6 +44,21 @@ CRITICAL RULES:
 - Handle edge cases: empty input, missing fields, etc.
 - All helper functions must also be async
 - Use %s style logging, not f-strings in logger calls
+
+CRITICAL TEST RULES:
+- Test functions must take ZERO parameters. No mocker, no fixtures, no arguments.
+- NEVER use pytest-mock, unittest.mock, or mocker fixtures.
+- Use simple hardcoded assertions or inline mock data instead.
+- Tests run in a bare Python subprocess — only stdlib and httpx are available.
+- Good test pattern:
+  async def test_my_tool():
+      result = await my_tool(query='test')
+      assert isinstance(result, dict)
+      assert 'success' in result
+      return True
+- BAD test pattern (NEVER DO THIS):
+  async def test_my_tool(mocker):  # WRONG, no mocker parameter
+      mocker.patch(...)  # WRONG, no mocking framework
 """
 
 TOOL_CODE_TEMPLATE: str = '''"""GENESIS Generated Skill: {name}

@@ -174,7 +174,6 @@ async def reddit_scraper(subreddit: str, limit: int = 10) -> list:
 
 export function useDemoMode(
   enabled: boolean,
-  addNode: (node: SkillNode, edge?: { source: string; target: string }) => void,
   setGraphData: React.Dispatch<React.SetStateAction<GraphData>>
 ) {
   const [demoEvents, setDemoEvents] = useState<AgentEvent[]>([]);
@@ -262,7 +261,6 @@ export function useDemoMode(
       };
       const edge = { source: skill.parentId, target: skill.id };
       emit({ event: 'skill_tree_update', node: newNode, edge, message: `Registered ${skill.name}` });
-      addNode(newNode, edge);
     });
 
     schedule(codeEndTime + 3000, () =>
@@ -272,7 +270,7 @@ export function useDemoMode(
     // Schedule next cycle
     cycleTimerRef.current = setTimeout(() => runCycle(), codeEndTime + 10000);
     timersRef.current.push(cycleTimerRef.current);
-  }, [emit, addNode]);
+  }, [emit]);
 
   useEffect(() => {
     if (enabled) {

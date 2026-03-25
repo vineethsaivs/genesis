@@ -154,7 +154,8 @@ async def registrar_node(state: dict) -> dict:
     # Emit events
     agent_events.append({
         "event": "skill_tree_update",
-        "data": skill_tree_data,
+        "node": skill_tree_data.get("node", {}),
+        "edge": skill_tree_data.get("edge"),
         "timestamp": datetime.now(timezone.utc).isoformat(),
     })
 

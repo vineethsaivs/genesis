@@ -346,34 +346,39 @@ async def run_agent(task: str, emitter: Any) -> None:
                     event_type = event.get("event", "")
 
                     if event_type == "code_stream":
-                        await emitter.emit_code_chunk(event.get("chunk", ""))
+                        await emitter.emit_code_chunk(
+                            event.get("chunk", ""),
+                            skill_name=event.get("skill_name", ""),
+                        )
                     elif event_type == "test_result":
                         await emitter.emit_test_result(
                             passed=event.get("passed", False),
                             detail=event.get("details", ""),
+                            skill_name=event.get("skill_name", ""),
                         )
                     elif event_type == "skill_tree_update":
                         await emitter.emit_skill_tree_update(
-                            event.get("data", {}),
+                            node=event.get("node", {}),
+                            edge=event.get("edge"),
                         )
                     elif event_type == "evolution_start":
                         await emitter.emit_evolution_start(
-                            skill_name=event.get("tool_name", "unknown"),
+                            skill_name=event.get("skill_name", "unknown"),
                             trigger_task=task,
                         )
                     else:
                         # Default: emit as status
                         await emitter.emit_status(
                             event.get("message", ""),
-                            status=event.get("status", "running"),
+                            status=event.get("status", "executing"),
                         )
 
         await emitter.emit_complete(final_response or "Task complete")
 
     except Exception as exc:
         logger.error("Agent execution failed: %s", exc, exc_info=True)
-        await emitter.emit_status(f"Error: {exc}", status="error")
-        await emitter.emit_complete("Task failed due to an error")
+        await emitter.emit_error(f"Error: {exc}")
+        await emitter.emit_complete("Task failed due to an error.")
 
 
 __all__ = ["graph", "build_genesis_graph", "run_agent"]

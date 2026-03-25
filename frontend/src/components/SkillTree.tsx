@@ -26,8 +26,13 @@ export default function SkillTree({ graphData, onNodeClick, width, height }: Ski
 
   useEffect(() => {
     if (graphData.nodes.length !== prevNodeCount.current && fgRef.current) {
-      fgRef.current.d3ReheatSimulation();
+      // Delay reheat so the library's debounced internal update (1ms) has time
+      // to feed the new nodes to d3-force before we restart the simulation.
+      const timer = setTimeout(() => {
+        fgRef.current?.d3ReheatSimulation();
+      }, 5);
       prevNodeCount.current = graphData.nodes.length;
+      return () => clearTimeout(timer);
     }
   }, [graphData.nodes.length]);
 
@@ -140,6 +145,7 @@ export default function SkillTree({ graphData, onNodeClick, width, height }: Ski
         linkDirectionalParticles={2}
         linkDirectionalParticleWidth={3}
         linkDirectionalParticleColor={getParticleColor}
+        linkDirectionalParticleSpeed={0.005}
         autoPauseRedraw={!hasGlow}
         cooldownTicks={100}
         d3AlphaDecay={0.02}

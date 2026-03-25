@@ -121,11 +121,14 @@ async def agent_websocket(websocket: WebSocket) -> None:
             except ImportError:
 
                 async def _placeholder(t: str, em: AgentEventEmitter) -> None:
-                    await em.emit_status(f"Received task: {t}")
+                    await em.emit_status(f"Received task: {t}", status="planning")
                     await em.emit_status(
-                        "Agent graph not yet implemented — this is a placeholder response."
+                        "Agent graph not yet implemented — this is a placeholder response.",
+                        status="executing",
                     )
-                    await em.emit_complete("Infrastructure is working. Agent coming in Session 2.")
+                    await em.emit_complete(
+                        "Infrastructure is working. Agent coming in Session 2."
+                    )
 
                 agent_coro = _placeholder(task, emitter)
 

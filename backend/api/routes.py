@@ -17,6 +17,7 @@ from backend.db.models import (
     TaskRequest,
     TaskResponse,
 )
+from backend.skills import get_skill_tree
 
 logger = logging.getLogger(__name__)
 
@@ -53,11 +54,12 @@ async def delete_skill(skill_id: str) -> dict:
 
 
 @router.get("/skill-tree", response_model=SkillTreeResponse)
-async def get_skill_tree() -> SkillTreeResponse:
+async def skill_tree_endpoint() -> SkillTreeResponse:
     """Return the skill tree in react-force-graph-2d format."""
-    tree = await db.get_skill_tree()
-    nodes = [SkillTreeNode(**n) for n in tree["nodes"]]
-    links = [SkillTreeLink(**lnk) for lnk in tree["links"]]
+    tree = get_skill_tree()
+    data = await tree.get_graph_data()
+    nodes = [SkillTreeNode(**n) for n in data["nodes"]]
+    links = [SkillTreeLink(**lnk) for lnk in data["links"]]
     return SkillTreeResponse(nodes=nodes, links=links)
 
 
