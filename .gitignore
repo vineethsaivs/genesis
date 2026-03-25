@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+data/
+generated_skills/*.py
+!generated_skills/.gitkeep
+.env
+.pytest_cache/
+.ruff_cache/
+frontend/dist/
+*.egg-info/
+.DS_Store

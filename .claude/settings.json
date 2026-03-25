@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": ["Read", "Write", "Bash(uv *)", "Bash(npm *)", "Bash(cd *)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$TOOL_INPUT_FILE\" == *.py ]]; then uv run ruff format \"$TOOL_INPUT_FILE\" 2>/dev/null; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
